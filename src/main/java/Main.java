@@ -468,6 +468,77 @@ public class Main {
 
             });
 
+            // ----- CRUD USUARIO ------------
+
+            // Eliminar usuario
+            config.routes.post("/usuarios/eliminar/{id}", ctx -> {
+                Usuario admin = ctx.sessionAttribute("usuario");
+                if (admin == null || !admin.getRol().equals("ADMIN")) {
+                    ctx.redirect("/");
+                    return;
+                }
+                int id = Integer.parseInt(ctx.pathParam("id"));
+                Usuario usuario = UsuarioServices.getInstancia().find(id);
+
+                // no permitir eliminar al admin
+                if (usuario != null && !usuario.getRol().equals("ADMIN")) {
+                    UsuarioServices.getInstancia().eliminar(id);
+                }
+                ctx.redirect("/usuarios");
+            });
+
+            // Crear usuario (Admin)
+            config.routes.post("/usuarios/crear", ctx -> {
+                Usuario admin = ctx.sessionAttribute("usuario");
+                if (admin == null || !admin.getRol().equals("ADMIN")) {
+                    ctx.redirect("/");
+                    return;
+                }
+                Usuario usuario = new Usuario();
+                usuario.setNombre(ctx.formParam("nombre"));
+                usuario.setEmail(ctx.formParam("email"));
+                usuario.setContrasena(ctx.formParam("contrasena"));
+                usuario.setRol(ctx.formParam("rol"));
+                usuario.setBloqueado(false);
+
+                UsuarioServices.getInstancia().crear(usuario);
+                ctx.redirect("/usuarios");
+            });
+
+            // Editar usuario (Vista, Admin)
+            config.routes.get("/usuarios/editar/{id}", ctx -> {
+                Usuario admin = ctx.sessionAttribute("usuario");
+                if (admin == null || !admin.getRol().equals("ADMIN")) {
+                    ctx.redirect("/");
+                    return;
+                }
+                int id = Integer.parseInt(ctx.pathParam("id"));
+                Usuario usuario = UsuarioServices.getInstancia().find(id);
+                ctx.attribute("usuarioEditar", usuario);
+                ctx.attribute("mostrarModalEditar", true);
+                var listaUsuarios = UsuarioServices.getInstancia().findAll();
+                ctx.attribute("usuarios", listaUsuarios);
+                ctx.render("templates/usuario.html");
+            });
+
+            // Modificar datos del usuario (POST, Admin)
+            config.routes.post("/usuarios/editar/{id}", ctx -> {
+                Usuario admin = ctx.sessionAttribute("usuario");
+                if (admin == null || !admin.getRol().equals("ADMIN")) {
+                    ctx.redirect("/");
+                    return;
+                }
+
+                int id = Integer.parseInt(ctx.pathParam("id"));
+                Usuario usuario = UsuarioServices.getInstancia().find(id);
+                usuario.setNombre(ctx.formParam("nombre"));
+                usuario.setEmail(ctx.formParam("email"));
+                usuario.setRol(ctx.formParam("rol"));
+
+                UsuarioServices.getInstancia().editar(usuario);
+                ctx.redirect("/usuarios");
+            });
+
 
         }).start();
 
