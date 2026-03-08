@@ -1,0 +1,99 @@
+.detalle-main {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.detalle-card,
+.resumen-card {
+    border: none;
+    border-radius: 12px;
+}
+
+.detalle-titulo {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #1f2d3d;
+}
+
+.detalle-subtitulo {
+    font-size: 1.25rem;
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+.detalle-info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    height: 100%;
+}
+
+.detalle-info-box i {
+    font-size: 1.4rem;
+    color: #212529;
+    margin-top: 2px;
+}
+
+.detalle-info-box h6 {
+    margin-bottom: 4px;
+    font-weight: 700;
+    color: #212529;
+}
+
+.detalle-info-box p {
+    margin-bottom: 0;
+    color: #6c757d;
+}
+
+.resumen-linea {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    color: #495057;
+}
+
+.detalle-progress {
+    height: 12px;
+    border-radius: 10px;
+}
+
+#btnInscribirme {
+    display: block;
+    width: 100%;
+    background-color: #1f2d3d;
+    color: #ffffff;
+    border: 1px solid #1f2d3d;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(31, 45, 61, 0.15);
+}
+
+#btnInscribirme:hover {
+    background-color: #34495e;
+    border-color: #34495e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(31, 45, 61, 0.25);
+}
+
+#btnInscribirme:active {
+    transform: translateY(0);
+}
+
+#btnInscribirme:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

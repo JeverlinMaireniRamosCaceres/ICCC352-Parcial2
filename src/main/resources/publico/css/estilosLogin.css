@@ -1,0 +1,92 @@
+/* fondo */
+body {
+    background: linear-gradient(135deg, #e6e7ea 0%, #bfc3cc 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+}
+
+/* efecto glassmorphism */
+.login-card {
+    background: rgba(40, 40, 45, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    position:relative;
+}
+
+.back-link{
+    position:absolute;
+    top:20px;
+    left:20px;
+    color:white;
+    font-size:1.4rem;
+    text-decoration:none;
+}
+
+.back-link:hover{
+    color:#d1d1d1;
+}
+
+/* icono principal */
+.icon-box {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+/* inputs */
+.form-control {
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #f2f2f2 !important;
+    background: transparent;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.input-group-text {
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.65);
+    background: transparent;
+}
+
+.form-control:focus {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.18);
+}
+
+/* boton */
+.btn-gradient {
+    background: linear-gradient(90deg, #5a5a5a, #3f3f3f);
+    color: white;
+    border: none;
+    transition: 0.3s;
+    border-radius: 10px;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(90deg, #6a6a6a, #4a4a4a);
+    transform: translateY(-2px);
+}
+
+/* checkbox */
+.form-check-input:checked {
+    background-color: #3a3a3a;
+    border-color: #3a3a3a;
+}
