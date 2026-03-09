@@ -383,7 +383,9 @@ public class Main {
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 Usuario usuario = UsuarioServices.getInstancia().find(id);
                 if(usuario != null){
-                    usuario.setBloqueado(true);
+
+                    usuario.setBloqueado(!usuario.isBloqueado());
+
                     UsuarioServices.getInstancia().editar(usuario);
                 }
                 ctx.redirect("/usuarios");

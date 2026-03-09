@@ -70,8 +70,9 @@
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <form th:if="${u.rol != 'ADMIN'}" th:action="@{'/usuarios/bloquear/' + ${u.idUsuario}}" method="post" style="display:inline">
-                                    <button class="btn btn-sm btn-warning" title="Bloquear usuario">
-                                        <i class="bi bi-lock"></i>
+                                    <button class="btn btn-sm"
+                                            th:classappend="${u.bloqueado} ? 'btn-success' : 'btn-warning'">
+                                        <i th:class="${u.bloqueado} ? 'bi bi-unlock' : 'bi bi-lock'"></i>
                                     </button>
                                 </form>
                                 <form th:if="${u.rol != 'ADMIN'}" th:action="@{'/usuarios/eliminar/' + ${u.idUsuario}}" method="post" style="display:inline"
