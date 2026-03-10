@@ -111,6 +111,22 @@ public class InscripcionServices extends GestionDb<Inscripcion>{
         }
     }
 
+    public List<Inscripcion> buscarPorEvento(Evento evento) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "select i from Inscripcion i " +
+                                    "join fetch i.usuario " +
+                                    "where i.evento = :evento " +
+                                    "order by i.fechaInscripcion asc",
+                            Inscripcion.class)
+                    .setParameter("evento", evento)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
 
 
 }
