@@ -1,4 +1,5 @@
 const resultado = document.getElementById("resultado");
+const idEvento = document.getElementById("idEvento").value;
 
 let scanner;
 
@@ -17,7 +18,8 @@ async function onScanSuccess(decodedText) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                codigoQr: decodedText
+                codigoQr: decodedText,
+                idEvento: idEvento
             })
         });
 
