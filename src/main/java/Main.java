@@ -600,7 +600,7 @@ public class Main {
                 ctx.redirect("/usuarios");
             });
 
-            // ------------------ TEMPORAL PARA VER ESTADISTICAS BORRAR! -------------
+            // ---------------- ESTADISTICAS -------------
 
             config.routes.get("/eventos/{id}/estadisticas", ctx -> {
                 int id = Integer.parseInt(ctx.pathParam("id"));
@@ -622,6 +622,12 @@ public class Main {
                     return;
                 }
                 ctx.json(estadisticas);
+            });
+
+            // -------- Dashboard ----------
+            config.routes.get("/api/admin/resumen", ctx -> {
+                Map<String, Object> resumen = AdminServices.getInstancia().calcularResumen();
+                ctx.json(resumen);
             });
 
         }).start();
