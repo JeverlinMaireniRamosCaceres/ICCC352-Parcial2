@@ -600,6 +600,29 @@ public class Main {
                 ctx.redirect("/usuarios");
             });
 
+            // ------------------ TEMPORAL PARA VER ESTADISTICAS BORRAR! -------------
+
+            config.routes.get("/eventos/{id}/estadisticas", ctx -> {
+                int id = Integer.parseInt(ctx.pathParam("id"));
+                Evento evento = EventoServices.getInstancia().find(id);
+                if (evento == null) {
+                    ctx.status(404).result("Evento no encontrado");
+                    return;
+                }
+                Map<String, Object> model = new HashMap<>();
+                model.put("idEvento", id);
+                ctx.render("templates/estadisticasEvento.html", model);
+            });
+
+            config.routes.get("/api/eventos/{id}/estadisticas", ctx -> {
+                int id = Integer.parseInt(ctx.pathParam("id"));
+                Map<String, Object> estadisticas = EventoServices.getInstancia().calcularEstadisticas(id);
+                if (estadisticas == null) {
+                    ctx.status(404).json(Map.of("error", "Evento no encontrado"));
+                    return;
+                }
+                ctx.json(estadisticas);
+            });
 
         }).start();
 
