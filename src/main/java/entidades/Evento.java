@@ -28,12 +28,16 @@ public class Evento {
 
     private String estado;
 
+    @ManyToOne
+    @JoinColumn(name = "idOrganizador")
+    private Usuario organizador;
+
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones;
 
     public Evento(){}
 
-    public Evento(int idEvento, String titulo, String descripcion, LocalDate fecha, LocalTime hora, String lugar, int cupoMaximo, String estado, List<Inscripcion> inscripciones) {
+    public Evento(int idEvento, String titulo, String descripcion, LocalDate fecha, LocalTime hora, String lugar, int cupoMaximo, String estado, Usuario organizador,List<Inscripcion> inscripciones) {
         this.idEvento = idEvento;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -43,6 +47,7 @@ public class Evento {
         this.cupoMaximo = cupoMaximo;
         this.estado = estado;
         this.inscripciones = inscripciones;
+        this.organizador = organizador;
     }
 
     // getters y setters
@@ -109,6 +114,14 @@ public class Evento {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public Usuario getOrganizador() {
+        return organizador;
+    }
+
+    public void setOrganizador(Usuario organizador) {
+        this.organizador = organizador;
     }
 
     public List<Inscripcion> getInscripciones() {

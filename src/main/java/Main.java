@@ -234,8 +234,23 @@ public class Main {
 
             // Redirigir evento (admin)
             config.routes.get("/eventos", ctx -> {
+                Usuario usuario = ctx.sessionAttribute("usuario");
+
                 Map<String, Object> model = new HashMap<>();
-                model.put("eventos", EventoServices.getInstancia().findAll());
+                model.put("usuarioLogueado", usuario);
+
+                if (usuario != null && usuario.getRol().equals("ORGANIZADOR")) {
+                    // mostrar solo los eventos de ese organizador
+                    List<Evento> eventosOrganizador = EventoServices.getInstancia().findAll()
+                            .stream()
+                            .filter(e -> e.getOrganizador() != null)
+                            .filter(e -> e.getOrganizador().getIdUsuario() == usuario.getIdUsuario())
+                            .toList();
+                    model.put("eventos", eventosOrganizador);
+                } else {
+                    model.put("eventos", EventoServices.getInstancia().findAll());
+                }
+
                 ctx.render("templates/eventos.html", model);
             });
 
@@ -251,6 +266,8 @@ public class Main {
             config.routes.post("/eventos/crear", ctx -> {
                 Evento evento = new Evento();
 
+                Usuario usuario = ctx.sessionAttribute("usuario");
+
                 evento.setTitulo(ctx.formParam("titulo"));
                 evento.setLugar(ctx.formParam("lugar"));
                 evento.setDescripcion(ctx.formParam("descripcion"));
@@ -258,6 +275,7 @@ public class Main {
                 evento.setHora(LocalTime.parse(ctx.formParam("hora")));
                 evento.setCupoMaximo(Integer.parseInt(ctx.formParam("cupoMaximo")));
                 evento.setEstado(ctx.formParam("estado"));
+                evento.setOrganizador(usuario);
 
                 EventoServices.getInstancia().crear(evento);
 
@@ -409,51 +427,70 @@ public class Main {
                 ctx.render("templates/misEventos.html", modelo);
             });
 
-            // Redirigir a la pagina de escanear
-            config.routes.get("/scanner", ctx -> {
+            // Redirigir a la pagina de escanear un evento
+            config.routes.get("/scanner/evento/{id}", ctx -> {
 
                 Usuario usuario = ctx.sessionAttribute("usuario");
 
-                if(usuario == null){
+                if (usuario == null) {
                     ctx.redirect("/login");
                     return;
                 }
 
-                if(!usuario.getRol().equals("ADMIN")){
-                    ctx.redirect("/");
+                int idEvento = Integer.parseInt(ctx.pathParam("id"));
+                Evento evento = EventoServices.getInstancia().find(idEvento);
+
+                if (evento == null) {
+                    ctx.status(404).result("Evento no encontrado");
                     return;
                 }
 
-                ctx.render("templates/scanner.html");
+                Map<String, Object> model = new HashMap<>();
+                model.put("evento", evento);
+                model.put("usuarioLogueado", usuario);
+
+                ctx.render("templates/scanner.html", model);
             });
 
             // Registrar asistencia del escaneo
             config.routes.post("/scanner/asistencia", ctx -> {
 
                 Map<String, Object> respuesta = new HashMap<>();
-
                 Map<String, String> body = ctx.bodyAsClass(Map.class);
 
                 String codigo = body.get("codigoQr");
+                String idEventoTexto = body.get("idEvento");
+
+                if (codigo == null || idEventoTexto == null) {
+                    respuesta.put("ok", false);
+                    respuesta.put("mensaje", "Datos incompletos");
+                    ctx.json(respuesta);
+                    return;
+                }
+
+                int idEvento = Integer.parseInt(idEventoTexto);
 
                 Inscripcion inscripcion = InscripcionServices
                         .getInstancia()
                         .buscarPorCodigoQr(codigo);
 
                 if (inscripcion == null) {
-
                     respuesta.put("ok", false);
                     respuesta.put("mensaje", "QR no válido");
+                    ctx.json(respuesta);
+                    return;
+                }
 
+                if (inscripcion.getEvento().getIdEvento() != idEvento) {
+                    respuesta.put("ok", false);
+                    respuesta.put("mensaje", "Este QR no pertenece al evento seleccionado");
                     ctx.json(respuesta);
                     return;
                 }
 
                 if (inscripcion.isAsistio()) {
-
                     respuesta.put("ok", false);
                     respuesta.put("mensaje", "La asistencia ya fue registrada");
-
                     ctx.json(respuesta);
                     return;
                 }
@@ -467,7 +504,29 @@ public class Main {
                 respuesta.put("nombre", inscripcion.getUsuario().getNombre());
 
                 ctx.json(respuesta);
+            });
 
+            // Para mostrar la lista de eventos del organizador
+            config.routes.get("/scanner/eventos", ctx -> {
+
+                Usuario usuario = ctx.sessionAttribute("usuario");
+
+                if (usuario == null) {
+                    ctx.redirect("/login");
+                    return;
+                }
+
+                List<Evento> eventosOrganizador = EventoServices.getInstancia().findAll()
+                        .stream()
+                        .filter(e -> e.getOrganizador() != null)
+                        .filter(e -> e.getOrganizador().getIdUsuario() == usuario.getIdUsuario())
+                        .toList();
+
+                Map<String, Object> model = new HashMap<>();
+                model.put("eventos", eventosOrganizador);
+                model.put("usuarioLogueado", usuario);
+
+                ctx.render("templates/scannerEvento.html", model);
             });
 
             // ----- CRUD USUARIO ------------

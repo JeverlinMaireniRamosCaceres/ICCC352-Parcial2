@@ -35,7 +35,8 @@
     <aside class="sidebar">
         <div class="sidebar-title">Menú</div>
 
-        <a class="sidebar-link" href="/admin">
+        <a class="sidebar-link" href="/admin"
+           th:if="${usuarioLogueado == null or usuarioLogueado.rol != 'ORGANIZADOR'}">
             <i class="bi bi-speedometer2"></i> Dashboard
         </a>
 
@@ -43,7 +44,8 @@
             <i class="bi bi-calendar-event"></i> Eventos
         </a>
 
-        <a class="sidebar-link" href="/usuarios">
+        <a class="sidebar-link" href="/usuarios"
+           th:if="${usuarioLogueado == null or usuarioLogueado.rol != 'ORGANIZADOR'}">
             <i class="bi bi-people"></i> Usuarios
         </a>
     </aside>
@@ -112,13 +114,19 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
 
+                                <!-- Estadisticas -->
+                                <a class="btn btn-sm btn-outline-info"
+                                   th:href="'/eventos/' + ${evento.idEvento} + '/estadisticas'">
+                                    <i class="bi bi-bar-chart"></i>
+                                </a>
+
                                 <!-- Editar -->
                                 <a class="btn btn-sm btn-outline-dark"
                                    th:href="'/eventos/' + ${evento.idEvento} + '/editar'">
                                     <i class="bi bi-pencil"></i>
                                 </a>
 
-                                <!-- Cancelar (solo si NO está cancelado) -->
+                                <!-- Cancelar -->
                                 <form th:if="${evento.estado != 'CANCELADO'}"
                                       th:action="'/eventos/' + ${evento.idEvento} + '/cancelar'"
                                       method="post"
