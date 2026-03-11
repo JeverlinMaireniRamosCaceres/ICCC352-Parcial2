@@ -424,6 +424,36 @@ public class Main {
                 ctx.json(respuesta);
             });
 
+            //Desinscribirse del evento
+            config.routes.post("/eventos/{id}/desinscribirse", ctx -> {
+                Usuario usuario = ctx.sessionAttribute("usuario");
+                if(usuario == null || !usuario.getRol().equals("PARTICIPANTE")){
+                    ctx.redirect("/");
+                    return;
+                }
+                int idEvento = Integer.parseInt(ctx.pathParam("id"));
+                Evento evento = EventoServices.getInstancia().find(idEvento);
+
+                if(evento == null){
+                    ctx.redirect("/misEventos");
+                    return;
+                }
+                // validar que el evento no haya ocurrido
+                if(evento.getFecha().isBefore(LocalDate.now())){
+                    ctx.sessionAttribute("mensajeError", "No puedes desinscribirte de un evento que ya ocurrió.");
+                    ctx.redirect("/misEventos");
+                    return;
+                }
+                Inscripcion inscripcion = InscripcionServices
+                        .getInstancia()
+                        .buscarPorUsuarioYEvento(usuario, evento);
+
+                if(inscripcion != null){
+                    InscripcionServices.getInstancia().eliminar(inscripcion.getIdInscripcion());
+                }
+                ctx.redirect("/misEventos");
+            });
+
             // Bloquear usuario
             config.routes.post("/usuarios/bloquear/{id}", ctx -> {
                 Usuario admin = ctx.sessionAttribute("usuario");
@@ -444,6 +474,7 @@ public class Main {
 
             // Redirigir a los eventos del usuario
             config.routes.get("/misEventos", ctx -> {
+
                 Usuario usuario = ctx.sessionAttribute("usuario");
 
                 if (usuario == null) {
@@ -451,11 +482,30 @@ public class Main {
                     return;
                 }
 
-                List<Inscripcion> inscripciones = InscripcionServices.getInstancia().buscarPorUsuario(usuario);
+                List<Inscripcion> inscripciones = InscripcionServices
+                        .getInstancia()
+                        .buscarPorUsuario(usuario);
 
-                Map<String, Object> modelo = new HashMap<>();
+                List<Map<String,Object>> lista = new ArrayList<>();
+
+                for(Inscripcion i : inscripciones){
+
+                    Map<String,Object> fila = new HashMap<>();
+
+                    fila.put("inscripcion", i);
+
+                    boolean puedeCancelar = !i.getEvento()
+                            .getFecha()
+                            .isBefore(LocalDate.now());
+
+                    fila.put("puedeCancelar", puedeCancelar);
+
+                    lista.add(fila);
+                }
+
+                Map<String,Object> modelo = new HashMap<>();
                 modelo.put("usuarioLogueado", usuario);
-                modelo.put("inscripciones", inscripciones);
+                modelo.put("lista", lista);
 
                 ctx.render("templates/misEventos.html", modelo);
             });
