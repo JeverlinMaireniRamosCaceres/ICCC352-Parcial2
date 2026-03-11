@@ -232,41 +232,59 @@ public class Main {
                 ctx.render("templates/usuario.html");
             });
 
-            // Redirigir evento (admin)
+            // Redirigir evento (admin y organizador)
             config.routes.get("/eventos", ctx -> {
                 Usuario usuario = ctx.sessionAttribute("usuario");
-
+                if(usuario == null){
+                    ctx.redirect("/login");
+                    return;
+                }
+                if(!(usuario.getRol().equals("ADMIN") || usuario.getRol().equals("ORGANIZADOR"))){
+                    ctx.redirect("/");
+                    return;
+                }
                 Map<String, Object> model = new HashMap<>();
                 model.put("usuarioLogueado", usuario);
-
-                if (usuario != null && usuario.getRol().equals("ORGANIZADOR")) {
-                    // mostrar solo los eventos de ese organizador
+                if (usuario.getRol().equals("ORGANIZADOR")) {
                     List<Evento> eventosOrganizador = EventoServices.getInstancia().findAll()
                             .stream()
                             .filter(e -> e.getOrganizador() != null)
                             .filter(e -> e.getOrganizador().getIdUsuario() == usuario.getIdUsuario())
                             .toList();
+
                     model.put("eventos", eventosOrganizador);
                 } else {
                     model.put("eventos", EventoServices.getInstancia().findAll());
                 }
-
                 ctx.render("templates/eventos.html", model);
-            });
 
-            // Redirigir crear evento (admin)
+            });
+            // Redirigir crear evento (admin y organizador)
             config.routes.get("/eventos/nuevo", ctx -> {
+                Usuario usuario = ctx.sessionAttribute("usuario");
+                if(usuario == null ||
+                        !(usuario.getRol().equals("ADMIN") ||
+                                usuario.getRol().equals("ORGANIZADOR"))){
+                    ctx.redirect("/");
+                    return;
+                }
                 Map<String, Object> model = new HashMap<>();
                 model.put("modoEdicion", false);
                 model.put("evento", null);
-                ctx.render("templates/crearEvento.html",model);
+                model.put("usuarioLogueado", usuario);
+                ctx.render("templates/crearEvento.html", model);
             });
 
             // Para crear evento
             config.routes.post("/eventos/crear", ctx -> {
-                Evento evento = new Evento();
-
                 Usuario usuario = ctx.sessionAttribute("usuario");
+                if(usuario == null ||
+                        !(usuario.getRol().equals("ADMIN") ||
+                                usuario.getRol().equals("ORGANIZADOR"))){
+                    ctx.redirect("/");
+                    return;
+                }
+                Evento evento = new Evento();
 
                 evento.setTitulo(ctx.formParam("titulo"));
                 evento.setLugar(ctx.formParam("lugar"));
@@ -275,6 +293,7 @@ public class Main {
                 evento.setHora(LocalTime.parse(ctx.formParam("hora")));
                 evento.setCupoMaximo(Integer.parseInt(ctx.formParam("cupoMaximo")));
                 evento.setEstado(ctx.formParam("estado"));
+
                 evento.setOrganizador(usuario);
 
                 EventoServices.getInstancia().crear(evento);
@@ -301,14 +320,20 @@ public class Main {
 
             // Editar evento
             config.routes.post("/eventos/{id}/editar", ctx -> {
+                Usuario usuario = ctx.sessionAttribute("usuario");
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 Evento evento = EventoServices.getInstancia().find(id);
-
                 if (evento == null) {
                     ctx.status(404).result("Evento no encontrado");
                     return;
                 }
+                if(usuario == null ||
+                        !(usuario.getRol().equals("ADMIN") ||
+                                evento.getOrganizador().getIdUsuario() == usuario.getIdUsuario())){
 
+                    ctx.redirect("/");
+                    return;
+                }
                 evento.setTitulo(ctx.formParam("titulo"));
                 evento.setLugar(ctx.formParam("lugar"));
                 evento.setFecha(LocalDate.parse(ctx.formParam("fecha")));
@@ -316,27 +341,27 @@ public class Main {
                 evento.setCupoMaximo(Integer.parseInt(ctx.formParam("cupoMaximo")));
                 evento.setEstado(ctx.formParam("estado"));
                 evento.setDescripcion(ctx.formParam("descripcion"));
-
                 EventoServices.getInstancia().editar(evento);
-
                 ctx.redirect("/eventos");
             });
 
             // Cancelar evento
             config.routes.post("/eventos/{id}/cancelar", ctx -> {
-
+                Usuario usuario = ctx.sessionAttribute("usuario");
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 Evento evento = EventoServices.getInstancia().find(id);
-
                 if (evento == null) {
                     ctx.status(404).result("Evento no encontrado");
                     return;
                 }
-
+                if(usuario == null ||
+                        !(usuario.getRol().equals("ADMIN") ||
+                                evento.getOrganizador().getIdUsuario() == usuario.getIdUsuario())){
+                    ctx.redirect("/");
+                    return;
+                }
                 evento.setEstado("CANCELADO");
-
                 EventoServices.getInstancia().editar(evento);
-
                 ctx.redirect("/eventos");
             });
 
@@ -351,6 +376,14 @@ public class Main {
                     ctx.status(401);
                     respuesta.put("ok", false);
                     respuesta.put("mensaje", "Debes iniciar sesión para inscribirte.");
+                    ctx.json(respuesta);
+                    return;
+                }
+
+                if(!usuario.getRol().equals("PARTICIPANTE")){
+                    ctx.status(403);
+                    respuesta.put("ok", false);
+                    respuesta.put("mensaje", "Solo los participantes pueden inscribirse en eventos.");
                     ctx.json(respuesta);
                     return;
                 }
