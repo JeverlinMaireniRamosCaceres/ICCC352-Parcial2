@@ -141,8 +141,7 @@ public class Main {
                 var todosEventos = EventoServices.getInstancia().findAll();
 
                 var eventosFiltrados = todosEventos.stream()
-                        .filter(e -> e.getEstado().equalsIgnoreCase("PUBLICADO")
-                                || e.getEstado().equalsIgnoreCase("CANCELADO"))
+                        .filter(e -> e.getEstado().equalsIgnoreCase("PUBLICADO"))
                         .toList();
 
                 int totalEventos = eventosFiltrados.size();
@@ -389,10 +388,27 @@ public class Main {
                 }
 
                 Evento evento = EventoServices.getInstancia().find(idEvento);
+
                 if (evento == null) {
                     ctx.status(404);
                     respuesta.put("ok", false);
                     respuesta.put("mensaje", "Evento no encontrado.");
+                    ctx.json(respuesta);
+                    return;
+                }
+
+                if(evento.getEstado().equals("CANCELADO")){
+                    ctx.status(400);
+                    respuesta.put("ok", false);
+                    respuesta.put("mensaje", "No es posible inscribirse a un evento cancelado.");
+                    ctx.json(respuesta);
+                    return;
+                }
+
+                if(evento.getFecha().isBefore(LocalDate.now())){
+                    ctx.status(400);
+                    respuesta.put("ok", false);
+                    respuesta.put("mensaje", "No puedes inscribirte a un evento que ya ocurrió.");
                     ctx.json(respuesta);
                     return;
                 }
