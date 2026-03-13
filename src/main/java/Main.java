@@ -375,7 +375,7 @@ public class Main {
                 if (usuario == null) {
                     ctx.status(401);
                     respuesta.put("ok", false);
-                    respuesta.put("mensaje", "Debes iniciar sesión para inscribirte.");
+                    respuesta.put("mensaje", "Debe iniciar sesión para inscribirse.");
                     ctx.json(respuesta);
                     return;
                 }
@@ -411,13 +411,13 @@ public class Main {
                 if (inscripcion == null) {
                     ctx.status(400);
                     respuesta.put("ok", false);
-                    respuesta.put("mensaje", "Ya estás inscrito en este evento.");
+                    respuesta.put("mensaje", "Ya está inscrito en este evento.");
                     ctx.json(respuesta);
                     return;
                 }
 
                 respuesta.put("ok", true);
-                respuesta.put("mensaje", "Inscripción realizada correctamente.");
+                respuesta.put("mensaje", "Inscripción realizada correctamente. Revise su QR en Mis eventos");
                 respuesta.put("codigoQr", inscripcion.getCodigoQr());
                 respuesta.put("rutaQr", inscripcion.getRutaQr());
 
