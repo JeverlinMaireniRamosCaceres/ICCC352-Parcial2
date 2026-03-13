@@ -9,7 +9,7 @@
 
         <properties>
             <!--<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test" />-->
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:tcp://localhost:9092/~/gestionEventos" />
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
             <property name="jakarta.persistence.jdbc.user" value="sa" />

@@ -2,13 +2,12 @@ const resultado = document.getElementById("resultado");
 const idEvento = document.getElementById("idEvento").value;
 
 let scanner;
+let escaneando = false; // no permite que se escanee dos veces
 
 async function onScanSuccess(decodedText) {
 
-    // detener scanner
-    if (scanner) {
-        scanner.clear();
-    }
+    if (escaneando) return;
+    escaneando = true;
 
     try {
 
@@ -52,6 +51,12 @@ async function onScanSuccess(decodedText) {
             </div>
         `;
 
+    } finally {
+        // pasados 3 segundos se puede escanear nuevamente
+        setTimeout(() => {
+            escaneando = false;
+            resultado.innerHTML = "";
+        }, 3000);
     }
 
 }
