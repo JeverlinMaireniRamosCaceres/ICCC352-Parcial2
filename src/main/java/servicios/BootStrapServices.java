@@ -24,10 +24,9 @@ public class BootStrapServices {
             // modo servidor H2
             Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers", "-tcpDaemon", "-ifNotExists").start();
 
-            // abriendo el cliente web, el 0 representa puerto aleatorio
-            String status = Server.createWebServer("-trace", "-webPort", "0").start().getStatus();
+            Server.createWebServer("-trace", "-webPort", "8083", "-webAllowOthers").start();
 
-            System.out.println("Status Web: "+status);
+           // System.out.println("Status Web: "+status);
         }catch (SQLException ex){
             System.out.println("Problema con la base de datos: "+ex.getMessage());
         }
