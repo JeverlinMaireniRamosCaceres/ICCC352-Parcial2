@@ -29,6 +29,7 @@ public class Inscripcion {
 
     private String codigoQr;
 
+    @Column(columnDefinition = "TEXT")
     private String rutaQr;
 
     private String estado;
