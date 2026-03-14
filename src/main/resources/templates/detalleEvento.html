@@ -205,18 +205,23 @@
 
             <div th:if="${usuarioLogueado != null}">
 
+              <!-- CANCELADO-->
+              <button th:if="${evento.estado == 'CANCELADO'}" class="btn btn-danger w-100" disabled>
+                <i class="bi bi-x-circle me-1"></i> Evento cancelado
+              </button>
+
               <!-- YA INSCRITO -->
-              <button th:if="${yaInscrito}" class="btn btn-secondary w-100" disabled>
+              <button th:if="${evento.estado != 'CANCELADO' and yaInscrito}" class="btn btn-secondary w-100" disabled>
                 Ya estás inscrito
               </button>
 
               <!-- CUPOS AGOTADOS -->
-              <button th:if="${!yaInscrito and !cuposDisponibles}" class="btn btn-danger w-100" disabled>
+              <button th:if="${evento.estado != 'CANCELADO' and !yaInscrito and !cuposDisponibles}" class="btn btn-danger w-100" disabled>
                 Cupos agotados
               </button>
 
               <!-- INSCRIPCION DISPONIBLE -->
-              <form th:if="${!yaInscrito and cuposDisponibles}"
+              <form th:if="${evento.estado != 'CANCELADO' and !yaInscrito and cuposDisponibles}"
                     id="formInscripcion"
                     th:action="@{/eventos/{id}/inscribirse(id=${evento.idEvento})}"
                     method="post">

@@ -89,12 +89,16 @@
 
                             <td th:text="${evento.fecha}">2026-03-10</td>
 
-                            <td class="text-center">0</td>
+                            <td class="text-center"
+                                th:text="${estadisticasPorEvento[evento.idEvento] != null ?
+                                estadisticasPorEvento[evento.idEvento]['totalInscritos'] : 0}">0</td>
 
                             <td class="text-center" th:text="${evento.cupoMaximo}">150</td>
 
                             <td class="text-center">
-                                <span class="badge badge-ocupacion">0%</span>
+                                <span class="badge badge-ocupacion"
+                                     th:text="${estadisticasPorEvento[evento.idEvento] != null ?
+                                estadisticasPorEvento[evento.idEvento]['porcentajeOcupacion'] + '%' : '0%'}">0%</span>
                             </td>
 
                             <td class="text-center">

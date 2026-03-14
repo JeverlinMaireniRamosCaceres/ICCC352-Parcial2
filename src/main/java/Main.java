@@ -19,6 +19,18 @@ public class Main {
         BootStrapServices.getInstancia().init();
         UsuarioServices.getInstancia();
 
+        // Crear usuario admin por defecto
+        Usuario adminExistente = UsuarioServices.getInstancia().buscarPorEmail("admin@eventos.com");
+        if (adminExistente == null) {
+            Usuario admin = new Usuario();
+            admin.setNombre("Administrador");
+            admin.setEmail("admin@eventos.com");
+            admin.setContrasena("admin");
+            admin.setRol("ADMIN");
+            admin.setBloqueado(false);
+            UsuarioServices.getInstancia().crear(admin);
+        }
+
         // Configuracion de archivos estaticos y Thymeleaf
         var app = Javalin.create(config -> {
             // HTTP configuration
@@ -234,30 +246,43 @@ public class Main {
             // Redirigir evento (admin y organizador)
             config.routes.get("/eventos", ctx -> {
                 Usuario usuario = ctx.sessionAttribute("usuario");
-                if(usuario == null){
+                if (usuario == null) {
                     ctx.redirect("/login");
                     return;
                 }
-                if(!(usuario.getRol().equals("ADMIN") || usuario.getRol().equals("ORGANIZADOR"))){
+                if (!(usuario.getRol().equals("ADMIN") || usuario.getRol().equals("ORGANIZADOR"))) {
                     ctx.redirect("/");
                     return;
                 }
+
                 Map<String, Object> model = new HashMap<>();
                 model.put("usuarioLogueado", usuario);
+
+                List<Evento> listaEventos;
                 if (usuario.getRol().equals("ORGANIZADOR")) {
-                    List<Evento> eventosOrganizador = EventoServices.getInstancia().findAll()
+                    listaEventos = EventoServices.getInstancia().findAll()
                             .stream()
                             .filter(e -> e.getOrganizador() != null)
                             .filter(e -> e.getOrganizador().getIdUsuario() == usuario.getIdUsuario())
                             .toList();
-
-                    model.put("eventos", eventosOrganizador);
                 } else {
-                    model.put("eventos", EventoServices.getInstancia().findAll());
+                    listaEventos = EventoServices.getInstancia().findAll();
                 }
-                ctx.render("templates/eventos.html", model);
 
+                model.put("eventos", listaEventos);
+
+                Map<Integer, Map<String, Object>> estadisticasPorEvento = new HashMap<>();
+                for (Evento e : listaEventos) {
+                    Map<String, Object> stats = EventoServices.getInstancia().calcularEstadisticas(e.getIdEvento());
+                    if (stats != null) {
+                        estadisticasPorEvento.put(e.getIdEvento(), stats);
+                    }
+                }
+                model.put("estadisticasPorEvento", estadisticasPorEvento);
+
+                ctx.render("templates/eventos.html", model);
             });
+
             // Redirigir crear evento (admin y organizador)
             config.routes.get("/eventos/nuevo", ctx -> {
                 Usuario usuario = ctx.sessionAttribute("usuario");
