@@ -54,7 +54,10 @@ public class Main {
 
             // Redireccion login
             config.routes.get("/login", ctx -> {
-                ctx.render("templates/login.html");
+                Map<String, Object> model = new HashMap<>();
+                model.put("errorLogin", ctx.sessionAttribute("errorLogin"));
+                ctx.sessionAttribute("errorLogin", null);
+                ctx.render("templates/login.html", model);
             });
 
             // Cerrar sesion
@@ -75,7 +78,8 @@ public class Main {
                 if(usuario != null && usuario.getContrasena().equals(contrasena)){
 
                     if(usuario.isBloqueado()){
-                        ctx.result("Usuario bloqueado");
+                        ctx.sessionAttribute("errorLogin", "Tu cuenta está bloqueada.");
+                        ctx.redirect("/login");
                         return;
                     }
 
