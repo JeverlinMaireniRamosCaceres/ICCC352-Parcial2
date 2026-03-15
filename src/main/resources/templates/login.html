@@ -24,6 +24,8 @@
                 <p class="text-white">Inicia sesión</p>
             </div>
 
+            <div th:if="${errorLogin != null}" class="alert alert-danger" th:text="${errorLogin}"></div>
+
             <form method="post" action="/login">
 
                 <div class="mb-4">
